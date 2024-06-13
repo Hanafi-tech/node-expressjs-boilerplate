@@ -1,10 +1,10 @@
-const { transporter } = require('@/config/nodemailer');
+const { transporterDomain } = require('@/config/nodemailer.js');
 
-const sendVerificationEmail = async (email, verificationToken, mailService) => {
+const sendVerificationEmail = async (data) => {
     const mailOptions = {
-        from: mailService.user,
-        to: email,
-        subject: 'MeBuzz [Password Reset]',
+        from: data.config.user,
+        to: data.to,
+        subject: data.subject,
         html: `
             <!DOCTYPE html>
             <html>
@@ -68,16 +68,16 @@ const sendVerificationEmail = async (email, verificationToken, mailService) => {
             <body>
                 <div class="container">
                     <div class="header">
-                        <img src="https://your-website.com/logo.png" alt="MeBuzz Logo">
+                        <img src="https://your-website.com/logo.png" alt="Your Company Logo">
                     </div>
                     <div class="content">
                         <h1>Email Verification</h1>
                         <p>Click the button below to verify your email address:</p>
-                        <a href="http://your-website.com/verify?token=${verificationToken}" class="button">Verify Email</a>
+                        <h2>${data.verificationToken}</h2>
                         <p>If you did not request this, please ignore this email.</p>
                     </div>
                     <div class="footer">
-                        <p>&copy; ${new Date().getFullYear()} MeBuzz. All rights reserved.</p>
+                        <p>&copy; ${new Date().getFullYear()} Your Company. All rights reserved.</p>
                     </div>
                 </div>
             </body>
@@ -86,7 +86,7 @@ const sendVerificationEmail = async (email, verificationToken, mailService) => {
     };
 
     try {
-        await transporter.sendMail(mailOptions);
+        await transporterDomain.sendMail(mailOptions);
         console.log('Verification email sent');
     } catch (error) {
         console.error('Error sending verification email:', error);

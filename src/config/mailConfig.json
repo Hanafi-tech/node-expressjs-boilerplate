@@ -1,0 +1,9 @@
+{
+    "mailConf": {
+        "host": "smtp.gmail.com",
+        "port": 465,
+        "scure": true,
+        "user": "example@gmail.com",
+        "pass": "jfeznpuymasiesah"
+    }
+}

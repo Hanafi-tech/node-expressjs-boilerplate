@@ -14,8 +14,6 @@ const authenticateToken = (roles) => {
 
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET); // Ganti dengan secret key Anda
-            console.log(decoded)
-
             req.user = decoded;
 
             // Periksa apakah role user ada dalam daftar role yang diperbolehkan
