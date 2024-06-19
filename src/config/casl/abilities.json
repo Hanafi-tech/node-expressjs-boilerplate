@@ -1,0 +1,88 @@
+{
+    "administrator": {
+        "can": [
+            {
+                "action": "manage",
+                "subject": "all"
+            }
+        ],
+        "cannot": []
+    },
+    "editor": {
+        "can": [
+            {
+                "action": "read",
+                "subject": "Article"
+            },
+            {
+                "action": "create",
+                "subject": "Article"
+            },
+            {
+                "action": "update",
+                "subject": "Article"
+            },
+            {
+                "action": "delete",
+                "subject": "Article"
+            },
+            {
+                "action": "read",
+                "subject": "Comment"
+            },
+            {
+                "action": "update",
+                "subject": "Comment"
+            },
+            {
+                "action": "delete",
+                "subject": "Comment"
+            }
+        ],
+        "cannot": []
+    },
+    "user": {
+        "can": [
+            {
+                "action": "read",
+                "subject": "Article"
+            },
+            {
+                "action": "create",
+                "subject": "Comment"
+            },
+            {
+                "action": "read",
+                "subject": "Comment"
+            },
+            {
+                "action": "update",
+                "subject": "Comment",
+                "conditions": {
+                    "authorId": "user.id"
+                }
+            },
+            {
+                "action": "delete",
+                "subject": "Comment",
+                "conditions": {
+                    "authorId": "user.id"
+                }
+            }
+        ],
+        "cannot": []
+    },
+    "guest": {
+        "can": [
+            {
+                "action": "read",
+                "subject": "Article"
+            },
+            {
+                "action": "read",
+                "subject": "Comment"
+            }
+        ],
+        "cannot": []
+    }
+}

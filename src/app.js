@@ -1,19 +1,23 @@
 require('dotenv').config();
 require('module-alias/register');
 
+const express = require('express');
 const cron = require('node-cron');
 const cors = require("cors");
-const express = require('express')
 const FileUpload = require('express-fileupload');
-const router = require('./routes/index.js')
-const bodyParser = require("body-parser")
+const router = require('./routes/index.js');
+const bodyParser = require("body-parser");
 const path = require('path');
 const xssClean = require('xss-clean');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const authenticateToken = require('./middleware/auth.js');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./config/swaggerConfig.js');
+
+const authenticateToken = require('@/middleware/authJwt.js');
+const checkAbility = require('@/middleware/checkAbility.js');
+const { morganDevMiddleware, morganProdMiddleware } = require('@/middleware/morganLogsEvent.js');
+const morganMiddleware = process.env.NODE_ENV === 'development' ? morganDevMiddleware : morganProdMiddleware;
 
 // const hostname = process.env.HOSTNAME || '127.0.0.1';
 const port = process.env.PORT || 3000;
@@ -56,8 +60,8 @@ cron.schedule('* * * * *', () => {
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-app.use('/img', authenticateToken(['user', 'administrator']), express.static(path.join(__dirname, 'public', 'image')));
-app.use("/api", router);
+app.use('/img', express.static(path.join(__dirname, 'public', 'image')));
+app.use("/api", authenticateToken(), checkAbility, morganMiddleware, router);
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
