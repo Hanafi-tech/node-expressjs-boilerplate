@@ -14,6 +14,7 @@ const rateLimit = require('express-rate-limit');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./config/swaggerConfig.js');
 
+const { handle404Error, handleOtherErrors } = require('@/middleware/errorHandler.js');
 const authenticateToken = require('@/middleware/authJwt.js');
 const checkAbility = require('@/middleware/checkAbility.js');
 const { morganDevMiddleware, morganProdMiddleware } = require('@/middleware/morganLogsEvent.js');
@@ -62,6 +63,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use('/img', express.static(path.join(__dirname, 'public', 'image')));
 app.use("/api", authenticateToken(), checkAbility, morganMiddleware, router);
+
+// Middleware untuk menangani 404 error (URL tidak ditemukan) dan error 500
+app.use(handle404Error);
+app.use(handleOtherErrors);
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);

@@ -12,31 +12,31 @@
         "can": [
             {
                 "action": "read",
-                "subject": "Article"
+                "subject": "article"
             },
             {
                 "action": "create",
-                "subject": "Article"
+                "subject": "article"
             },
             {
                 "action": "update",
-                "subject": "Article"
+                "subject": "article"
             },
             {
                 "action": "delete",
-                "subject": "Article"
+                "subject": "article"
             },
             {
                 "action": "read",
-                "subject": "Comment"
+                "subject": "comment"
             },
             {
                 "action": "update",
-                "subject": "Comment"
+                "subject": "comment"
             },
             {
                 "action": "delete",
-                "subject": "Comment"
+                "subject": "comment"
             }
         ],
         "cannot": []
@@ -45,26 +45,26 @@
         "can": [
             {
                 "action": "read",
-                "subject": "Article"
+                "subject": "article"
             },
             {
                 "action": "create",
-                "subject": "Comment"
+                "subject": "comment"
             },
             {
                 "action": "read",
-                "subject": "Comment"
+                "subject": "comment"
             },
             {
                 "action": "update",
-                "subject": "Comment",
+                "subject": "comment",
                 "conditions": {
                     "authorId": "user.id"
                 }
             },
             {
                 "action": "delete",
-                "subject": "Comment",
+                "subject": "comment",
                 "conditions": {
                     "authorId": "user.id"
                 }
@@ -76,11 +76,11 @@
         "can": [
             {
                 "action": "read",
-                "subject": "Article"
+                "subject": "article"
             },
             {
                 "action": "read",
-                "subject": "Comment"
+                "subject": "comment"
             }
         ],
         "cannot": []

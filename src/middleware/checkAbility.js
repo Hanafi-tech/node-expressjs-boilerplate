@@ -1,31 +1,37 @@
 const { defineAbilitiesFor } = require('./abilities.js');
-const accessControlConfig = require('@/config/casl/accessControl.js'); // Require untuk file konfigurasi
 const urlWhitelist = require('./urlWhitelist.js');
 
 const checkAbility = (req, res, next) => {
-    console.log(req.path);
     if (urlWhitelist.includes(req.path)) {
         return next();
     }
 
-    const userRole = req.user.role; // Mengasumsikan role pengguna tersedia di req.user.role
-    const accessConfig = accessControlConfig[req.path];
+    const userRole = req.user.role;
+    const method = req.method.toLowerCase();
+    let action;
 
-    console.log(userRole);
-
-    if (!accessConfig) {
-        return res.status(404).json({ message: 'Access Control Not Found' }); // Jika konfigurasi akses tidak ditemukan
-    }
-
-    const { action, subject, allowedRoles } = accessConfig;
-
-    if (!allowedRoles.includes(userRole)) {
-        return res.status(403).json({ message: 'Access Denied' });
+    switch (method) {
+        case 'get':
+            action = 'read';
+            break;
+        case 'post':
+            action = 'create';
+            break;
+        case 'put':
+        case 'patch':
+            action = 'update';
+            break;
+        case 'delete':
+            action = 'delete';
+            break;
+        default:
+            return res.status(405).json({ message: 'Method Not Allowed' });
     }
 
     const ability = defineAbilitiesFor(userRole);
+    const subject = req.path.split('/')[2] || req.path.split('/')[1];
 
-    if (ability.can(action, subject)) {
+    if (ability.can(action, subject.toLowerCase())) {
         return next();
     } else {
         return res.status(403).json({ message: 'Access Denied. You do not have the required permissions.' });
