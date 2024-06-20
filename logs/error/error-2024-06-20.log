@@ -1,0 +1,1 @@
+2024-06-20 14:02:56 [ERROR] >>> Unable to connect to the database: SequelizeConnectionRefusedError: connect ECONNREFUSED 127.0.0.1:3306 

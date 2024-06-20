@@ -14,7 +14,7 @@ const statusColor = (status) => {
     return status; // Default color for other statuses
 };
 
-const logDirectory = path.join(__dirname, '../logs');
+const logDirectory = path.join(__dirname, '..', '..', 'logs');
 const httpLogDirectory = path.join(logDirectory, 'http');
 
 // Ensure log directory exists

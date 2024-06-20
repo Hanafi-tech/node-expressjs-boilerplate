@@ -14,11 +14,16 @@ const rateLimit = require('express-rate-limit');
 const swaggerUi = require('swagger-ui-express');
 const swaggerDocument = require('./config/swaggerConfig.js');
 
+const db = require('@/config/database.js');
+
 const { handle404Error, handleOtherErrors } = require('@/middleware/errorHandler.js');
 const authenticateToken = require('@/middleware/authJwt.js');
 const checkAbility = require('@/middleware/checkAbility.js');
+const { errorLogger, infoLogger } = require('./config/logger.js');
 const { morganDevMiddleware, morganProdMiddleware } = require('@/middleware/morganLogsEvent.js');
 const morganMiddleware = process.env.NODE_ENV === 'development' ? morganDevMiddleware : morganProdMiddleware;
+
+db.authenticate().then(() => { infoLogger.info('Connection has been established to database.'); }).catch(err => { errorLogger.error(`Unable to connect to the database: ${err}`); });
 
 // const hostname = process.env.HOSTNAME || '127.0.0.1';
 const port = process.env.PORT || 3000;
@@ -70,4 +75,5 @@ app.use(handleOtherErrors);
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
+    infoLogger.info(`Server running at http://localhost:${port}/`);
 });
