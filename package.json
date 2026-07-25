@@ -59,7 +59,7 @@
     "puppeteer": "^24.10.0",
     "qrcode": "^1.5.4",
     "qs": "^6.12.1",
-    "redis": "^4.7.0",
+    "redis": "^6.1.0",
     "rotating-file-stream": "^3.2.3",
     "sequelize": "^6.37.3",
     "sequelize-cli": "^6.6.2",
