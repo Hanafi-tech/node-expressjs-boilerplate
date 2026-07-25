@@ -12,7 +12,7 @@
     "db:seed:undo": "sequelize-cli db:seed:undo:all"
   },
   "author": "M Hanafi <hanzcreative1@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "_moduleAliases": {
     "@": "src",
     "@root": ".",
