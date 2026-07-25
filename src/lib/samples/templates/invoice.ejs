@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice <%= invoiceNo %></title>
+  <style>
+    body  { font-family: Arial, sans-serif; font-size: 13px; color: #333; margin: 0; padding: 30px; }
+    h1    { font-size: 22px; margin: 0 0 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th    { background: #4CAF50; color: #fff; padding: 8px 12px; text-align: left; }
+    td    { padding: 8px 12px; border-bottom: 1px solid #eee; }
+    .total-row td { font-weight: bold; background: #f9f9f9; }
+    .header   { display: flex; justify-content: space-between; margin-bottom: 30px; }
+    .badge    { background: #4CAF50; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>INVOICE</h1>
+      <p style="margin:0; color:#888">No: <strong><%= invoiceNo %></strong></p>
+      <p style="margin:4px 0 0; color:#888">Tanggal: <%= date %></p>
+    </div>
+    <div><span class="badge">LUNAS</span></div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Item</th>
+        <th>Qty</th>
+        <th>Harga</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% items.forEach((item, i) => { %>
+      <tr>
+        <td><%= i + 1 %></td>
+        <td><%= item.name %></td>
+        <td><%= item.qty %></td>
+        <td>Rp <%= item.price.toLocaleString('id-ID') %></td>
+        <td>Rp <%= (item.qty * item.price).toLocaleString('id-ID') %></td>
+      </tr>
+      <% }) %>
+      <tr class="total-row">
+        <td colspan="4" style="text-align:right">Total</td>
+        <td>Rp <%= total.toLocaleString('id-ID') %></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top:40px; color:#888; font-size:11px;">
+    Dokumen ini dibuat secara otomatis oleh sistem. Terima kasih.
+  </p>
+</body>
+</html>

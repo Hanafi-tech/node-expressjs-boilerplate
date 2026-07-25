@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@my_module/*": ["src/lib/*"]
+    }
+  },
+  "include": ["src"]
+}

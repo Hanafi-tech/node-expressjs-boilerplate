@@ -1,0 +1,51 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8093:3000"
+    env_file:
+      - .env
+    environment:
+      - RUN_MIGRATIONS=false
+    command: ["node", "src/app.js"]
+    restart: always
+    shm_size: "1gb"
+    depends_on: []
+    volumes:
+      # - ./public/image:/app/public/image
+      # - ./public/upload:/app/public/upload
+      # - ./public/form:/app/public/form
+      # - ./public/pdf:/app/public/pdf
+      - ./src/public/image:/app/src/public/image
+      - ./src/public/upload:/app/src/public/upload
+      - ./src/public/form:/app/src/public/form
+      - ./src/public/pdf:/app/src/public/pdf
+
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      - RUN_MIGRATIONS=false
+    command: ["node", "src/service/mailServiceKafka.js"]
+    restart: always
+    shm_size: "1gb"
+    depends_on: []
+    volumes:
+      # - ./public/image:/app/public/image
+      # - ./public/upload:/app/public/upload
+      # - ./public/form:/app/public/form
+      # - ./public/pdf:/app/public/pdf
+      - ./src/public/image:/app/src/public/image
+      - ./src/public/upload:/app/src/public/upload
+      - ./src/public/form:/app/src/public/form
+      - ./src/public/pdf:/app/src/public/pdf
+    healthcheck:
+      test: ["CMD", "node", "-e", "process.exit(0)"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
