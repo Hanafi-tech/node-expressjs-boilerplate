@@ -5,11 +5,14 @@ const path    = require('path');
 const fs      = require('fs');
 const mime    = require('mime-types');
 const res_    = require('@/lib/utils/response.js');
+const requireSuperAdmin = require('@/middleware/requireSuperAdmin.js');
 
 const router = express.Router();
 
-const UPLOAD_DIR = path.join(__dirname, '../../public/upload');
-const IMAGE_DIR  = path.join(__dirname, '../../public/image');
+const UPLOAD_DIR = path.resolve(__dirname, '../../public/upload');
+const IMAGE_DIR  = path.resolve(__dirname, '../../public/image');
+
+const DIR_MAP = { image: IMAGE_DIR, upload: UPLOAD_DIR };
 
 const _listDir = (dir) => {
   if (!fs.existsSync(dir)) return [];
@@ -20,9 +23,9 @@ const _listDir = (dir) => {
       const stat     = fs.statSync(filePath);
       return {
         filename,
-        size:     stat.size,
-        sizeMB:   (stat.size / 1024 / 1024).toFixed(2),
-        mimeType: mime.lookup(filename) || 'application/octet-stream',
+        size:      stat.size,
+        sizeMB:    (stat.size / 1024 / 1024).toFixed(2),
+        mimeType:  mime.lookup(filename) || 'application/octet-stream',
         createdAt: stat.birthtime,
         updatedAt: stat.mtime,
       };
@@ -32,21 +35,14 @@ const _listDir = (dir) => {
 
 /**
  * @swagger
- * tags:
- *   name: File Manager
- *   description: Manajemen file yang sudah diupload
- */
-
-/**
- * @swagger
  * /files:
  *   get:
- *     summary: Daftar semua file (image + upload)
+ *     summary: Daftar semua file (superadmin only)
  *     tags: [File Manager]
  *     responses:
  *       200: { description: OK }
  */
-router.get('/', (req, res) => {
+router.get('/', requireSuperAdmin, (req, res) => {
   try {
     const images  = _listDir(IMAGE_DIR).map(f  => ({ ...f, folder: 'image',  url: `/img/${f.filename}` }));
     const uploads = _listDir(UPLOAD_DIR).map(f => ({ ...f, folder: 'upload', url: `/file/${f.filename}` }));
@@ -60,7 +56,7 @@ router.get('/', (req, res) => {
  * @swagger
  * /files/{folder}/{filename}:
  *   delete:
- *     summary: Hapus file
+ *     summary: Hapus file (superadmin only)
  *     tags: [File Manager]
  *     parameters:
  *       - in: path
@@ -73,22 +69,24 @@ router.get('/', (req, res) => {
  *         schema: { type: string }
  *     responses:
  *       200: { description: File berhasil dihapus }
+ *       403: { description: Akses ditolak }
  *       404: { description: File tidak ditemukan }
  */
-router.delete('/:folder/:filename', (req, res) => {
+router.delete('/:folder/:filename', requireSuperAdmin, (req, res) => {
   try {
-    const { folder, filename } = req.params;
+    const { folder } = req.params;
 
-    // Sanitasi: cegah path traversal
-    const safeName = path.basename(filename);
-    const baseDir  = folder === 'image' ? IMAGE_DIR : UPLOAD_DIR;
-
-    if (!['image', 'upload'].includes(folder)) {
+    if (!DIR_MAP[folder]) {
       return res_.badRequest(res, 'Folder tidak valid. Gunakan: image atau upload');
     }
 
-    const filePath = path.join(baseDir, safeName);
-    if (!filePath.startsWith(baseDir)) {
+    const baseDir  = DIR_MAP[folder];
+    // path.resolve mencegah path traversal (../, %2F, dll)
+    const safeName = path.basename(req.params.filename);
+    const filePath = path.resolve(baseDir, safeName);
+
+    // Double-check: pastikan path hasil resolve masih di dalam baseDir
+    if (!filePath.startsWith(baseDir + path.sep) && filePath !== baseDir) {
       return res_.forbidden(res, 'Akses tidak diizinkan');
     }
 

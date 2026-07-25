@@ -1,7 +1,8 @@
 'use strict';
 
-const express = require('express');
+const express           = require('express');
 const { getList, getMyActivity } = require('@/controllers/activityLogController.js');
+const requireSuperAdmin = require('@/middleware/requireSuperAdmin.js');
 
 const router = express.Router();
 
@@ -16,25 +17,13 @@ const router = express.Router();
  * @swagger
  * /activity-logs:
  *   get:
- *     summary: Semua activity log (admin)
+ *     summary: Semua activity log (superadmin only)
  *     tags: [Activity Log]
- *     parameters:
- *       - in: query
- *         name: userId
- *         schema: { type: integer }
- *       - in: query
- *         name: action
- *         schema: { type: string, enum: [login_success, login_failed, logout, password_reset, token_refresh] }
- *       - in: query
- *         name: from
- *         schema: { type: string, format: date }
- *       - in: query
- *         name: to
- *         schema: { type: string, format: date }
  *     responses:
  *       200: { description: OK }
+ *       403: { description: Forbidden }
  */
-router.get('/',   getList);
+router.get('/',   requireSuperAdmin, getList);
 
 /**
  * @swagger

@@ -99,6 +99,13 @@ const disableMfa = async (req, res) => {
   try {
     const user = await Users.findOne({ where: { id: req.user.id } });
     if (!user) return res_.notFound(res, 'User tidak ditemukan');
+
+    // Wajib verifikasi password sebelum disable MFA
+    const { password } = req.body;
+    if (!password) return res_.badRequest(res, 'Password wajib diisi untuk menonaktifkan MFA.');
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res_.badRequest(res, 'Password tidak sesuai.');
+
     await user.update({ mfaSecret: null, mfaBackupCodes: null, mfaEnabled: false });
     return res_.success(res, null, 'MFA berhasil dinonaktifkan');
   } catch (err) {

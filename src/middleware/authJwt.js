@@ -5,13 +5,9 @@ const urlWhitelist = require('./urlWhitelist.js');
 const Users   = require('@/database/models/usersModel.js');
 const redis   = require('@/config/redis.js');
 
-// TTL cache session user: 5 menit
 const SESSION_TTL = 60 * 5;
 const sessionKey  = (userId) => `session:user:${userId}`;
 
-/**
- * Hapus cache session user — panggil saat user dinonaktifkan, logout, atau password diubah.
- */
 const invalidateUserSession = async (userId) => {
   await redis.del(sessionKey(userId));
 };
@@ -19,23 +15,24 @@ const invalidateUserSession = async (userId) => {
 const authenticateToken = () => {
   return async (req, res, next) => {
     const subject = req.path.split('/')[1] || '';
-    if (urlWhitelist.includes(subject)) {
-      return next();
-    }
+    if (urlWhitelist.includes(subject)) return next();
 
     const authHeader = req.header('Authorization');
+
+    // Token HANYA dari Authorization header — TIDAK dari query string
+    // (token di URL ter-log di access log server, browser history, referer header)
     const token = authHeader?.startsWith('Bearer ')
       ? authHeader.split(' ')[1]
-      : req.query.token;
+      : null;
 
     if (!token) {
-      return res.status(401).json({ message: 'Access denied. No token provided.' });
+      return res.status(401).json({ success: false, message: 'Access denied. No token provided.' });
     }
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // ── Coba ambil dari cache Redis ──────────────────────────
+      // Coba ambil dari cache Redis
       const cached = await redis.get(sessionKey(decoded.id));
       if (cached) {
         try {
@@ -46,21 +43,18 @@ const authenticateToken = () => {
         }
       }
 
-      // ── Ambil dari DB ────────────────────────────────────────
+      // Ambil dari DB
       const user = await Users.findOne({ where: { id: decoded.id } });
       if (!user) {
-        return res.status(401).json({ msg: 'Invalid credentials' });
+        return res.status(401).json({ success: false, message: 'Invalid credentials' });
       }
-
       if (user.status !== 'active') {
-        return res.status(401).json({ msg: 'Your account is not active' });
+        return res.status(401).json({ success: false, message: 'Your account is not active' });
       }
-
       if (user.refreshTokenExpiresAt && new Date() > new Date(user.refreshTokenExpiresAt)) {
-        return res.status(401).json({ msg: 'Session has expired. Please login again.' });
+        return res.status(401).json({ success: false, message: 'Session has expired. Please login again.' });
       }
 
-      // Gabungkan decoded JWT + data fresh dari DB
       const userSession = {
         ...decoded,
         positionName: user.positionName,
@@ -68,16 +62,14 @@ const authenticateToken = () => {
         status:       user.status,
       };
 
-      // ── Simpan ke cache Redis ────────────────────────────────
       await redis.set(sessionKey(decoded.id), JSON.stringify(userSession), SESSION_TTL);
-
       req.user = userSession;
       return next();
     } catch (err) {
       if (err.name === 'TokenExpiredError') {
-        return res.status(401).json({ msg: 'Token has expired.' });
+        return res.status(401).json({ success: false, message: 'Token has expired.' });
       }
-      return res.status(401).json({ msg: 'Invalid token.' });
+      return res.status(401).json({ success: false, message: 'Invalid token.' });
     }
   };
 };

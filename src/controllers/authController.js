@@ -67,7 +67,10 @@ const login = async (req, res) => {
     const { email, password, mfaCode } = req.body;
 
     const user = await Users.findOne({ where: { email } });
-    if (!user || !(await user.validPassword(password))) {
+    // Selalu jalankan bcrypt compare untuk mencegah timing attack
+    // (attacker bisa tahu apakah email terdaftar dari perbedaan response time)
+    const passwordValid = user ? await user.validPassword(password) : await bcrypt.compare(password, '$2b$10$invalidhashXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
+    if (!user || !passwordValid) {
       if (user) await recordFailedAttempt(email);
       const remaining = await getRemainingAttempts(email);
       await activityLog.log({ userId: user?.id || null, email, action: 'login_failed', req, metadata: { remainingAttempts: remaining } });

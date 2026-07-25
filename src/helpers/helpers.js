@@ -94,7 +94,7 @@ const randomString = (length = 8) => {
  */
 const parsePagination = (query, defaultSize = 10) => {
   const page   = Math.max(1, parseInt(query.page,     10) || 1);
-  const limit  = Math.max(1, parseInt(query.pageSize, 10) || defaultSize);
+  const limit  = Math.max(1, Math.min(100, parseInt(query.pageSize, 10) || defaultSize));
   const offset = (page - 1) * limit;
   return { page, limit, offset };
 };

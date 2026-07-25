@@ -1,12 +1,31 @@
 'use strict';
 
-const express = require('express');
+const express    = require('express');
+const rateLimit  = require('express-rate-limit');
 const { login, logout, refreshToken, requestPasswordReset, verifyPasswordReset } = require('@/controllers/authController.js');
 const { validate } = require('@/middleware/validators/index.js');
 const { loginRules, resetPasswordRules, verifyResetRules, refreshTokenRules } = require('@/middleware/validators/authValidator.js');
 const { checkBruteForce } = require('@/middleware/bruteForce.js');
 
 const router = express.Router();
+
+// Rate limit khusus per endpoint auth — lebih ketat dari global
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 menit
+  max: 20,
+  message: { success: false, message: 'Terlalu banyak percobaan. Coba lagi setelah 15 menit.' },
+  standardHeaders: true,
+  legacyHeaders:   false,
+  skipSuccessfulRequests: false,
+});
+
+const resetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 jam
+  max: 5,
+  message: { success: false, message: 'Terlalu banyak permintaan reset password. Coba lagi setelah 1 jam.' },
+  standardHeaders: true,
+  legacyHeaders:   false,
+});
 
 /**
  * @swagger
@@ -32,19 +51,16 @@ const router = express.Router();
  *             properties:
  *               email:    { type: string, format: email }
  *               password: { type: string, minLength: 6 }
- *               mfaCode:  { type: string, description: "Kode MFA jika aktif" }
+ *               mfaCode:  { type: string }
  *     responses:
- *       200:
- *         description: Login berhasil, kembalikan token
- *       400:
- *         description: Kredensial tidak valid
- *       429:
- *         description: Akun dikunci karena terlalu banyak percobaan gagal
+ *       200: { description: Login berhasil }
+ *       400: { description: Kredensial tidak valid }
+ *       429: { description: Terlalu banyak percobaan / akun dikunci }
  */
-router.post('/login',         validate(loginRules), checkBruteForce, login);
-router.post('/logout',                              logout);
-router.post('/refreshtoken',  validate(refreshTokenRules),  refreshToken);
-router.post('/resetpassword', validate(resetPasswordRules), requestPasswordReset);
-router.post('/verifyreset',   validate(verifyResetRules),   verifyPasswordReset);
+router.post('/login',         authLimiter,  validate(loginRules),         checkBruteForce, login);
+router.post('/logout',                                                     logout);
+router.post('/refreshtoken',  authLimiter,  validate(refreshTokenRules),  refreshToken);
+router.post('/resetpassword', resetLimiter, validate(resetPasswordRules), requestPasswordReset);
+router.post('/verifyreset',   resetLimiter, validate(verifyResetRules),   verifyPasswordReset);
 
 module.exports = router;
