@@ -19,7 +19,7 @@
     "@my_module": "src/lib"
   },
   "dependencies": {
-    "@casl/ability": "^6.7.1",
+    "@casl/ability": "^7.0.1",
     "adm-zip": "^0.5.16",
     "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
