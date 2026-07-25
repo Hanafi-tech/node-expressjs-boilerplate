@@ -60,7 +60,7 @@
     "qrcode": "^1.5.4",
     "qs": "^6.12.1",
     "redis": "^4.7.0",
-    "rotating-file-stream": "^3.2.3",
+    "rotating-file-stream": "^3.2.9",
     "sequelize": "^6.37.3",
     "sequelize-cli": "^6.6.2",
     "socket.io": "^4.8.3",
