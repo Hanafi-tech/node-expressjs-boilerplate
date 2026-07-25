@@ -3,6 +3,12 @@
 Production-ready REST API boilerplate berbasis **Express.js + Sequelize + PostgreSQL**.  
 Dilengkapi Auth, RBAC, Redis Cache, Socket.io, Kafka, Audit Trail, dan banyak lagi — langsung siap pakai.
 
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![Node.js](https://img.shields.io/badge/Node.js-18%2B-brightgreen)
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Security: Dependabot](https://img.shields.io/badge/Dependabot-aktif-blue)
+![Secret Scanning](https://img.shields.io/badge/Secret%20Scanning-aktif-blue)
+
 ---
 
 ## Tech Stack
@@ -510,3 +516,17 @@ npm run db:migrate:undo  # Rollback migration terakhir
 npm run db:seed        # Jalankan semua seeder
 npm run db:seed:undo   # Rollback semua seeder
 ```
+
+---
+
+## Security
+
+| Item | Status |
+|---|---|
+| ✅ License | MIT |
+| ✅ Dependabot Alerts | Aktif — update dependency otomatis setiap Senin |
+| ✅ Dependabot Security Updates | Aktif — PR otomatis untuk patch kerentanan |
+| ✅ Secret Scanning | Aktif — deteksi credentials yang tidak sengaja ter-commit |
+| ✅ Code Scanning (CodeQL) | Aktif — analisis statis setiap push ke `main`/`develop` |
+
+Untuk melaporkan kerentanan keamanan, lihat [SECURITY.md](.github/SECURITY.md).

@@ -1,0 +1,42 @@
+# CI — basic sanity check setiap push & pull request
+name: CI
+
+on:
+  push:
+    branches: [ "main", "master", "develop" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  lint-and-check:
+    name: Syntax & Dependency Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --omit=dev
+
+      - name: Check syntax (all JS files)
+        run: |
+          find src -name "*.js" \
+            ! -path "*/node_modules/*" \
+            ! -path "*/samples/*" | \
+          xargs -I{} node --check {}
+          echo "✅ All files passed syntax check"
+
+      - name: Check for secrets in .env files
+        run: |
+          if grep -r "sk-\|password\|secret" .env* --include="*.env*" 2>/dev/null | grep -v "example\|replace_with\|change-me\|your_"; then
+            echo "⚠️  Possible real credentials found in .env files"
+            exit 1
+          fi
+          echo "✅ No real credentials detected"
